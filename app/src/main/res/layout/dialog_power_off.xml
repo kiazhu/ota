@@ -1,0 +1,33 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_settings_linear"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/gif"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="150dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/tips " />
+
+    <TextView
+        android:id="@+id/tv_second"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="210dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/gif"
+        android:text="@string/reboot"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp" />
+
+</RelativeLayout>

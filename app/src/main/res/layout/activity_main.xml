@@ -1,18 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@mipmap/bg"
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/tv_old_version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginLeft="500dp"
+        android:layout_marginTop="100dp"
+        android:textColor="#000000"
+        android:textSize="24sp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/tv_new_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_old_version"
+        android:layout_marginLeft="500dp"
+        android:layout_marginTop="20dp"
+        android:textColor="#000000"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/tv_failed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_new_version"
+        android:layout_marginLeft="550dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/download_failed"
+        android:textColor="#000000"
+        android:textSize="24sp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/btn_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_new_version"
+        android:layout_marginLeft="580dp"
+        android:layout_marginTop="60dp"
+        android:background="#29a7e1"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:paddingLeft="40dp"
+        android:paddingRight="40dp"
+        android:text="@string/update"
+        android:textAllCaps="false"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tv_progesss"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_update"
+        android:layout_marginLeft="560dp"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:paddingLeft="4dp"
+        android:paddingTop="2dp"
+        android:paddingRight="4dp"
+        android:paddingBottom="8dp"
+        android:text="@string/downloading"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/progesss"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="330dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_progesss"
+        android:layout_marginLeft="500dp"
+        android:background="@drawable/myprogressbar"
+        android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
+        android:indeterminateOnly="false"
+        android:max="100"
+        android:maxHeight="50dp"
+        android:minHeight="16dp"
+        android:progressDrawable="@drawable/myprogressbar"
+        android:visibility="gone" />
+
+
+    <TextView
+        android:id="@+id/tv_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="30dp"
+        android:layout_marginBottom="30dp"
+        android:textColor="#000000"
+        android:textSize="14sp" />
+
+</RelativeLayout>

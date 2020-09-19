@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota.version;
+package com.luxcine.luxcine_ota_customized.version;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -11,15 +11,13 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
-
-import com.example.luxcine_update.MainActivity;
-import com.example.luxcine_update.MyApplication;
+import androidx.core.content.FileProvider;
+import com.luxcine.luxcine_ota_customized.MyApplication;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 
 public class ApkController {
@@ -179,16 +177,16 @@ public class ApkController {
                 Log.e(TAG, "installSlient: -----------------------" + e.toString());
             }
         }
-        //Log.e(TAG, "=================== successMsg: " + successMsg.toString());
+       //Log.e(TAG, "=================== successMsg: " + successMsg.toString());
         //Log.e(TAG, "=================== errorMsg: " + errorMsg.toString());
 
-        Toast.makeText(MyApplication.getContext(), errorMsg.toString() + "  " + successMsg, Toast.LENGTH_LONG).show();
+        //Toast.makeText(MyApplication.getContext(), errorMsg.toString() + "  " + successMsg, Toast.LENGTH_LONG).show();
 
         //安装成功
-        if ("Success".equals(successMsg.toString())) {
+        /*if ("Success".equals(successMsg.toString())) {
             Log.e(TAG, "========= apk install success");
-        }
-
+        }*/
+        getVersionCode();
     }
 
 
@@ -249,7 +247,7 @@ public class ApkController {
                 errorMsg.append(s);
             }
         } catch (Exception e) {
-            Log.e(TAG, "installApp: -------------111---------------" + e.toString());
+            Log.e(TAG, "installApp: ----" + e.toString());
         } finally {
             try {
                 if (successResult != null) {
@@ -259,17 +257,15 @@ public class ApkController {
                     errorResult.close();
                 }
             } catch (Exception e) {
-                Log.e(TAG, "installApp: --------------222--------------" + e.toString());
+                Log.e(TAG, "installApp: ----::" + e.toString());
             }
             if (process != null) {
                 process.destroy();
             }
         }
-        Log.e("result", "" + errorMsg.toString());
-        Toast.makeText(MyApplication.getContext(), errorMsg.toString() + "  " + successMsg, Toast.LENGTH_LONG).show();
+        Log.e(TAG, "---installApp:" + errorMsg.toString());
 
         getVersionCode();
-
         //如果含有“success”单词则认为安装成功
         return successMsg.toString().equalsIgnoreCase("success");
     }
@@ -284,6 +280,24 @@ public class ApkController {
         mPackageInstaller.uninstall(MyApplication.getContext().getPackageName(), sender.getIntentSender());// 卸载APK
     }
 
+    public static  void installApk(Context context, String downloadApk) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        File file = new File(downloadApk);
+        Log.e(TAG, "installApk: -------安装路径:"+downloadApk );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Uri apkUri = FileProvider.getUriForFile(context, context.getPackageName()+".fileprovider", file);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+        } else {
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Uri uri = Uri.fromFile(file);
+            intent.setDataAndType(uri, "application/vnd.android.package-archive");
+        }
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
+        context.startActivity(intent);
+
+    }
+
     static String oldVersion;
 
     //获取本地软件版本号
@@ -291,12 +305,10 @@ public class ApkController {
         try {
             // 获取软件版本号，对应build.gradle下android:versionCode
             oldVersion = MyApplication.getContext().getPackageManager().getPackageInfo(MyApplication.getContext().getPackageName(), 0).versionName;
-
-            Log.e(TAG, "installApp: ---------------安装完成----------------" + oldVersion);
-
+            Log.e(TAG, "installApp: ----安装完成:" + oldVersion);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-            Log.e(TAG, "getVersionCode: 1----------============="+e.toString() );
+            Log.e(TAG, "getVersionCode: -------:"+e.toString() );
         }
         return oldVersion;
     }

@@ -1,11 +1,20 @@
-package com.luxcine.luxcine_ota_customized.utils;
+package com.luxcine.luxcine_ota_customized.version;
 
-public class Data {
+public class ApkData {
     private String date;
     private String url;
     private String md5;
     private String storagemem;
-	private String describe;
+    private String version_code;
+    private String describe;
+
+    public String getVersion_code() {
+        return version_code;
+    }
+
+    public void setVersion_code(String version_code) {
+        this.version_code = version_code;
+    }
 
     public String getDescribe() {
         return describe;

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">эскалация</string>
+
+    <string name="current_version"> текущая версия:</string>
+    <string name="already_new">это последняя версия</string>
+    <string name="new_version">последняя версия:</string>
+    <string name="download_failed">Ошибка загрузки</string>
+    <string name="update">Обновить</string>
+    <string name="downloading">загрузка :</string>
+    <string name="calibration">контрольный центр:</string>
+    <string name="reboot">Обновление системы, автоматический перезагрузка, пожалуйста, не отключайте! </string>
+
+
+</resources>

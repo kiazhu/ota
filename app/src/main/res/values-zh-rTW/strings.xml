@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+	<string name="app_name">升級</string>
+
+	<string name="current_version">當前版本:</string>
+	<string name="already_new">已是最新版本</string>
+	<string name="new_version">最新版本:</string>
+	<string name="download_failed">下載失敗</string>
+	<string name="update">更新</string>
+	<string name="downloading">正在下載:</string>
+	<string name="calibration">校驗中:</string>
+	<string name="reboot">系統升級,自動重啟,請勿斷電!</string>
+</resources>

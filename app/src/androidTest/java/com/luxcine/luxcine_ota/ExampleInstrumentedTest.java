@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota;
+package com.luxcine.luxcine_ota_customized;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.luxcine.luxcine_ota", appContext.getPackageName());
+        assertEquals("com.luxcine.luxcine_ota_customized", appContext.getPackageName());
     }
 }

@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota;
+package com.luxcine.luxcine_ota_customized;
 
 
 import android.app.Application;

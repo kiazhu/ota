@@ -1,17 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.luxcine.luxcine_ota">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.luxcine.luxcine_ota_customized"
+    android:sharedUserId="android.uid.system">
+
+    <uses-permission
+        android:name="android.permission.DELETE_CACHE_FILES"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission
+        android:name="android.permission.ACCESS_CACHE_FILESYSTEM"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.DELETE_PACKAGES" />
+    <uses-permission
+        android:name="android.permission.REBOOT"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission
+        android:name="android.permission.RECOVERY"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission
+        android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
+        tools:ignore="ProtectedPermissions" />
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:banner="@drawable/banner"
+        android:icon="@mipmap/more_apps"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/more_apps"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:ignore="GoogleAppIndexingWarning">
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,20 +49,27 @@
             </intent-filter>
         </activity>
 
+        <service android:name=".MainActivity$DownloadService" />
+
+
+        <receiver android:name=".BootBroadcastReceiver"> <!-- 开机广播 -->
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".NetService" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.luxcine.luxcine_ota.fileprovider"
+            android:authorities="com.luxcine.luxcine_ota_customized.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-
-        <service android:name=".version.DownAPKService" />
-
     </application>
 
 </manifest>

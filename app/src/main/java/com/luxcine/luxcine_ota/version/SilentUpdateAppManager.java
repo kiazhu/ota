@@ -1,21 +1,15 @@
-package com.luxcine.luxcine_ota.version;
+package com.luxcine.luxcine_ota_customized.version;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
-import androidx.core.content.FileProvider;
-
-import com.example.luxcine_update.MyApplication;
+import com.luxcine.luxcine_ota_customized.MainActivity;
+import com.luxcine.luxcine_ota_customized.MyApplication;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,14 +22,16 @@ import java.net.URL;
 public class SilentUpdateAppManager {
     private static final String TAG = "SilentUpdateAppManager";
 
+    private Context context;
     // 外存sdcard存放路径
-    private static final String FILE_PATH = Environment.getExternalStorageDirectory() + "/";
+    //private static final String FILE_PATH = Environment.getExternalStorageDirectory() + "/";
+    private static final String FILE_PATH = "/data/data/com.luxcine.luxcine_ota_customized/";
     // 下载应用存放全路径
-    private static final String FILE_NAME = FILE_PATH + "luxcine_update.apk";
+    private static final String FILE_NAME = FILE_PATH + "luxcine_ota_customized.apk";
+
     // 准备安装新版本应用标记
     private static final int INSTALL_TOKEN = 1;
 
-    private Context context;
 
     // 下载应用的进度条
     private ProgressDialog progressDialog;
@@ -52,7 +48,6 @@ public class SilentUpdateAppManager {
         this.context = context;
         this.version = version;
         this.urlStr = url;
-
     }
 
 
@@ -61,9 +56,6 @@ public class SilentUpdateAppManager {
         try {
             PackageManager manager = context.getPackageManager();
             PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
-
-            Log.e(TAG, "当前版本名和版本号" + info.versionName + "--" + info.versionCode);
-
             return info.versionCode;
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,7 +68,6 @@ public class SilentUpdateAppManager {
     // 从服务器获得更新信息
 
     public void getUpdateMsg() {
-
       /*  class mAsyncTask extends AsyncTask<String, Integer, String> {
             @Override
             protected String doInBackground(String... params) {
@@ -149,18 +140,15 @@ public class SilentUpdateAppManager {
 
 
         if (version > getCurrentVersion()) {
-            Log.e(TAG, "提示更新！");
+            //Log.e(TAG, "--------提示更新！");
 
             new downloadAsyncTask().execute();
 
         } else {
-            Log.e(TAG, "已是最新版本！");
+            // Log.e(TAG, "--------已是最新版本！");
         }
 
     }
-
-
-
 
 
     /**
@@ -170,12 +158,13 @@ public class SilentUpdateAppManager {
 
         @Override
         protected void onPreExecute() {
-            Log.e(TAG, "执行至--onPreExecute");
+
+            //Log.e(TAG, "---执行至--onPreExecute");
         }
 
         @Override
         protected Integer doInBackground(Void... params) {
-            Log.e(TAG, "执行至--doInBackground");
+            //Log.e(TAG, "执行至--doInBackground");
 
             URL url;
             HttpURLConnection connection = null;
@@ -183,9 +172,7 @@ public class SilentUpdateAppManager {
             FileOutputStream out = null;
             try {
                 // url = new URL(Url.APK_PATH);
-
-                Log.e(TAG, "doInBackground: -----------------------" + urlStr);
-
+                //Log.e(TAG, "doInBackground: -------" + urlStr);
                 url = new URL(urlStr);
                 connection = (HttpURLConnection) url.openConnection();
 
@@ -193,7 +180,8 @@ public class SilentUpdateAppManager {
                 long fileLength = connection.getContentLength();
                 File file_path = new File(FILE_PATH);
                 if (!file_path.exists()) {
-                    file_path.mkdir();
+                    // file_path.mkdir();
+                    file_path.mkdirs();
                 }
 
                 out = new FileOutputStream(new File(FILE_NAME));//为指定的文件路径创建文件输出流
@@ -201,7 +189,7 @@ public class SilentUpdateAppManager {
                 int len = 0;
                 long readLength = 0;
 
-                Log.e(TAG, "执行至--readLength = 0");
+                //Log.e(TAG, "执行至--readLength = 0");
 
                 while ((len = in.read(buffer)) != -1) {
 
@@ -210,13 +198,14 @@ public class SilentUpdateAppManager {
 
                     int curProgress = (int) (((float) readLength / fileLength) * 100);
 
-                    //Log.e(TAG, "--------当前下载进度：" + curProgress);
+                    if (curProgress == 10 || curProgress == 30|| curProgress == 60 || curProgress == 90) {
+                        Log.e(TAG, "--------APK下载进度:" + curProgress);
+                    }
 
                     publishProgress(curProgress);
 
                     if (readLength >= fileLength) {
-
-                        Log.e(TAG, "执行至--readLength >= fileLength");
+                        //Log.e(TAG, "执行至--readLength >= fileLength");
                         break;
                     }
                 }
@@ -226,7 +215,7 @@ public class SilentUpdateAppManager {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.e(TAG, "doInBackground: -----------e-----------" + e.toString());
+                Log.e(TAG, "doInBackground: ------e-------" + e.toString());
             } finally {
                 if (out != null) {
                     try {
@@ -258,13 +247,14 @@ public class SilentUpdateAppManager {
 
         @Override
         protected void onPostExecute(Integer integer) {
-            Log.e(TAG, "onPostExecute: --------------------------");
+            Log.e(TAG, "onPostExecute: -------下载完成:" + FILE_NAME);
             //new ApkController().clientInstall(FILE_NAME);
-            // new ApkController().installSlient(context,FILE_NAME);
+            //new ApkController().installSlient(context,FILE_NAME);
+            //new ApkController().installApk(context, FILE_NAME);
             new ApkController().installApp(FILE_NAME);
+
         }
     }
-
 
 }
 

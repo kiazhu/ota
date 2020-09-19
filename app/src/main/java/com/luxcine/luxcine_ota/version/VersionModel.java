@@ -1,7 +1,6 @@
-package com.luxcine.luxcine_ota.version;
+package com.luxcine.luxcine_ota_customized.version;
 
 
-import com.example.luxcine_update.base.BaseModel;
 
 public class VersionModel extends BaseModel {
 

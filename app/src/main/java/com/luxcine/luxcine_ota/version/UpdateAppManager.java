@@ -1,6 +1,5 @@
-package com.luxcine.luxcine_ota.version;
+package com.luxcine.luxcine_ota_customized.version;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -12,10 +11,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Handler;
 import android.util.Log;
+
 import androidx.core.content.FileProvider;
-import com.luxcine.luxcine_ota.MyApplication;
+
+import com.luxcine.luxcine_ota_customized.MyApplication;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -199,12 +199,12 @@ public class UpdateAppManager {
     /**
      * 下载新版本应用
      */
-    public  class downloadAsyncTask extends AsyncTask<Void, Integer, Integer> {
+    private class downloadAsyncTask extends AsyncTask<Void, Integer, Integer> {
 
         @Override
         protected void onPreExecute() {
             Log.e(TAG, "执行至--onPreExecute");
-            //progressDialog.show();
+            progressDialog.show();
         }
 
         @Override
@@ -316,7 +316,7 @@ public class UpdateAppManager {
         Uri apkUri;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            apkUri = FileProvider.getUriForFile(MyApplication.getContext(), "com.luxcine.luxcine_ota.fileprovider", apkFile);
+            apkUri = FileProvider.getUriForFile(MyApplication.getContext(), "com.example.luxcine_update.fileprovider", apkFile);
         } else {
             apkUri = Uri.fromFile(apkFile);
         }

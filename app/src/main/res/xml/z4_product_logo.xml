@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<update>
+
+
+	<version>
+		<date>20200801</date>
+		<url>yyyyyyyyy</url>
+		<md5>!!!!!!!!!!</md5>
+	</version>
+  
+
+	<version>
+		<date>20200909</date>
+		<url>http://149.129.93.140:8080/otaupdate/xml/download/zip/Z4/20200909/update.zip</url>
+		<md5>7DAE0E443B31C9D421B734F9D56341CF</md5>
+		<storagemem>800507862</storagemem>  
+	</version>
+  
+   
+</update>

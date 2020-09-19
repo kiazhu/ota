@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota.version;
+package com.luxcine.luxcine_ota_customized.version;
 
 import android.app.ActivityManager;
 import android.app.Service;
@@ -13,10 +13,8 @@ import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.example.luxcine_update.MyApplication;
-import com.example.luxcine_update.common.Constants;
-import com.example.luxcine_update.util.OkHttpUtil;
 import com.google.gson.Gson;
+import com.luxcine.luxcine_ota_customized.MyApplication;
 
 import java.util.List;
 
@@ -29,6 +27,11 @@ public class DownAPKService extends Service {
     private IntentFilter intentFilter;
     private NetworkBroadcast networkBroadcast;
 
+    public static final String api_token = "02adf1aa8df8c3aa9f2fb0026551e709";
+    public static final String id = "5f617b7db2eb467dd1a6abed";
+    public static final String BASE_URL = "http://api.bq04.com/apps/latest/"
+            + id + "?api_token=" + api_token;
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -40,16 +43,23 @@ public class DownAPKService extends Service {
 
 
         /**
-         * 动态获取权限，Android 6.0 新特性，一些保护权限，除了要在AndroidManifest中声明权限，还要使用如下代码动态获取
+         * 动态获取权限
          */
        /* if (Build.VERSION.SDK_INT >= 23) {
             int REQUEST_CODE_CONTACT = 101;
-            String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE
+             , Manifest.permission.READ_EXTERNAL_STORAGE};
             //验证是否许可权限
             for (String str : permissions) {
                 if (this.checkSelfPermission(str) != PackageManager.PERMISSION_GRANTED) {
                     //申请权限
                     this.requestPermissions(permissions, REQUEST_CODE_CONTACT);
+
+                     try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     return;
                 }
             }
@@ -77,11 +87,10 @@ public class DownAPKService extends Service {
 
 
     public void initVersion() {
-        new OkHttpUtil().getAsynHttp(Constants.BASE_URL, new OkHttpUtil.OnOkHttpListener() {
+        new OkHttpUtil().getAsynHttp(BASE_URL, new OkHttpUtil.OnOkHttpListener() {
             @Override
             public void onSuccess(String response) {
                 Log.e(TAG, "onSuccess: ---------------------" + response);
-
 
                 versionModel = new Gson().fromJson(response, VersionModel.class);
 
@@ -146,8 +155,6 @@ public class DownAPKService extends Service {
     }
 
 
-
-
     //监测网络广播
     class NetworkBroadcast extends BroadcastReceiver {
         private static final String TAG = "NetworkBroadcast";
@@ -161,11 +168,11 @@ public class DownAPKService extends Service {
             NetworkInfo networkInfo = connectionManager.getActiveNetworkInfo();
             //判断是否连接
             if (networkInfo != null && networkInfo.isAvailable()) {
-                Log.e(TAG, "onReceive: ---------------网络已连接---------------");
+                Log.e(TAG, "onReceive: ------网络已连接---------------");
 
                 //判断是否在前台
                 boolean b = isApplicationBroughtToBackground(MyApplication.getContext());
-                Log.e(TAG, "onCreate: ----------是否在前台-------------" + b);
+                Log.e(TAG, "onCreate: ---是否在前台-------------" + b);
 
                 if (!b) {//如果在前台
                     return;
@@ -179,7 +186,7 @@ public class DownAPKService extends Service {
                 initVersion();
 
             } else {
-                Log.e(TAG, "onReceive: ---------------网络未连接---------------");
+                Log.e(TAG, "onReceive: ------网络未连接---------------");
             }
         }
     }

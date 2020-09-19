@@ -1,3 +1,13 @@
 <resources>
-    <string name="app_name">luxcine_ota</string>
+    <string name="app_name">Update</string>
+
+    <string name="current_version">Current Version:</string>
+    <string name="already_new">Latest Version Already</string>
+    <string name="new_version">Latest Version:</string>
+    <string name="download_failed">Download Failed</string>
+    <string name="update">Upgrade</string>
+    <string name="downloading">Downloads Checking:</string>
+    <string name="calibration">Calibration in progress:</string>
+    <string name="reboot">Upgrading...Automatic Restart Later, To Keep Power On</string>
+
 </resources>

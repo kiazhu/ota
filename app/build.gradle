@@ -1,20 +1,33 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        t972 {
+            storeFile file('./aml-t972-platform.jks')
+            storePassword 'pl01191217'
+            keyAlias = 't972'
+            keyPassword 'pl01191217'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
     defaultConfig {
-        applicationId "com.luxcine.luxcine_ota"
+        applicationId "com.luxcine.luxcine_ota_customized"
         minSdkVersion 26
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.t972
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.t972
+        }
+        debug {
+            signingConfig signingConfigs.t972
         }
     }
 
@@ -37,6 +50,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    //更改apk名字
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "luxcine_ota_customized.apk"
+        }
+    }
 }
 
 dependencies {
@@ -49,4 +69,7 @@ dependencies {
 
     implementation 'com.squareup.okhttp3:okhttp:3.14.1'
     implementation 'com.google.code.gson:gson:2.8.5'
+
+    //加载gif图片框架
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.7'
 }
