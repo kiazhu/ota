@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota_customized;
+package com.luxcine.luxcine_ota;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -11,9 +11,12 @@ import android.app.MediaRouteButton;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -38,10 +41,13 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.luxcine.luxcine_ota_customized.utils.Constants;
-import com.luxcine.luxcine_ota_customized.utils.Data;
-import com.luxcine.luxcine_ota_customized.utils.SkyFileOperator;
-import com.luxcine.luxcine_ota_customized.version.APKUpdate;
+import com.luxcine.luxcine_ota.download.DownLoadObserver;
+import com.luxcine.luxcine_ota.download.DownloadInfo;
+import com.luxcine.luxcine_ota.download.DownloadManager;
+import com.luxcine.luxcine_ota.utils.Constants;
+import com.luxcine.luxcine_ota.utils.Data;
+import com.luxcine.luxcine_ota.utils.SkyFileOperator;
+import com.luxcine.luxcine_ota.version.APKUpdate;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -60,7 +66,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int RESULT = 0;
     private static final int RESULT_UPDATE = 1;
     private static final int DOWNLOAD_FIALED = 2;
+    private static final int UI_UPDATE = 3;
 
+    private static int progess;
     private TextView tvVersion;
 
     private TextView tvOldVersion;
@@ -85,10 +93,15 @@ public class MainActivity extends AppCompatActivity {
     private static AlertDialog mDialog;
     private static CountDownTimer countDownTimer;
 
+    private static final String BASE_URL_UPDATE_HK = "http://149.129.93.140:8080/otaupdate/xml/";
+    private static final String BASE_URL_UPDATE_CN = "http://120.24.53.73:80/otaupdate/xml/";
+    private String BASE_URL_UPDATE;
+
+    private String launcher;
 
     // 外存sdcard存放路径
     //private static final String FILE_PATH = Environment.getExternalStorageDirectory() + "/";
-    private static final String FILE_PATH = "/data/data/com.luxcine.luxcine_ota_customized/";
+    private static final String FILE_PATH = "/data/data/com.luxcine.luxcine_ota/";
     // 下载应用存放全路径
     private static final String FILE_NAME = FILE_PATH + "update.zip";
     // 准备安装新版本应用标记
@@ -102,11 +115,11 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(Message message) {
             switch (message.what) {
                 case RESULT:
-                    tvNewVersion.setText(com.luxcine.luxcine_ota_customized.MyApplication.getContext().getResources().getString(R.string.already_new));
+                    tvNewVersion.setText(com.luxcine.luxcine_ota.MyApplication.getContext().getResources().getString(R.string.already_new));
                     //tvNewVersion.setTextColor(Color.parseColor("#C2BFBF"));
                     break;
                 case RESULT_UPDATE:
-                    tvNewVersion.setText(com.luxcine.luxcine_ota_customized.MyApplication.getContext().getResources().getString(R.string.new_version) + newVersion);
+                    tvNewVersion.setText(com.luxcine.luxcine_ota.MyApplication.getContext().getResources().getString(R.string.new_version) + newVersion);
                     btnUpdate.setVisibility(View.VISIBLE);
                     break;
                 case DOWNLOAD_FIALED:
@@ -115,6 +128,17 @@ public class MainActivity extends AppCompatActivity {
                     tvFailed.setVisibility(View.VISIBLE);
                     tvProgesss.setVisibility(View.GONE);
                     progressBar.setVisibility(View.GONE);
+                    break;
+                case UI_UPDATE:
+                    if (btnUpdate.getVisibility() == View.VISIBLE) {
+                        btnUpdate.setVisibility(View.GONE);
+                    }
+
+                    tvProgesss.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.VISIBLE);
+                    tvProgesss.setText(MyApplication.getContext().getResources().getString(R.string.downloading) + progess + "%");
+                    progressBar.setProgress(progess);
+
                     break;
                 default:
                     break;
@@ -146,6 +170,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+        launcher = initLauncher();
+
+        if (launcher.equals("dbos")) {
+            BASE_URL_UPDATE = BASE_URL_UPDATE_CN;
+        } else if (launcher.equals("atv")) {
+            BASE_URL_UPDATE = BASE_URL_UPDATE_HK;
+        }
 
         usid = SkyFileOperator.readFromNandkey("usid");
         version = Integer.parseInt(SystemProperties.get("ro.build.version.incremental", ""));
@@ -164,7 +195,13 @@ public class MainActivity extends AppCompatActivity {
             logo = "rombica";
         }
 
-        strUrl = Constants.BASE_URL + mode + "_" + productModel + "_" + logo + ".xml";
+       /* version = Integer.parseInt(SystemProperties.get("ro.build.version.incremental", ""));
+        BASE_URL_UPDATE = BASE_URL_UPDATE_CN;
+        mode = "rk";
+        productModel = "rk3328";
+        logo = "box_normal";*/
+        //strUrl = BASE_URL_UPDATE + "update/" + "rk_rk3328_box_normal" + ".xml";
+        strUrl = BASE_URL_UPDATE + "update/" + mode + "_" + productModel + "_" + logo + ".xml";
         Log.e(TAG, "onCreate: ------读取文件:" + strUrl);
 
         initView();
@@ -292,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
                         } else if ("storagemem".equals(xParser.getName())) {
                             String storagemem = xParser.nextText();
                             data.setStoragemem(storagemem);
-                        }else if ("describe".equals(xParser.getName())) {
+                        } else if ("describe".equals(xParser.getName())) {
                             String describe = xParser.nextText();
                             data.setDescribe(describe);
                         }
@@ -342,9 +379,13 @@ public class MainActivity extends AppCompatActivity {
                 md5 = list.get(0).getMd5();
                 storagemem = list.get(0).getStoragemem();*/
 
-                updateUrl = "http://149.129.93.140:8080/otaupdate/xml/download/"
+                /*updateUrl = "http://149.129.93.140:8080/otaupdate/xml/download/zip/"
                         + mode + "_" + productModel + "_" + logo + "/"
-                        + newVersion + "/" + newVersion + "/update.zip";
+                        + newVersion + "/" + version + "/update.zip";*/
+
+                updateUrl = BASE_URL_UPDATE + "download/zip/"
+                        + mode + "_" + productModel + "_" + logo + "/"
+                        + newVersion + "/" + version + "/update.zip";
 
             } else if (version < max) {
                 newVersion = Integer.parseInt(list.get(list.size() - 1).getDate());
@@ -352,9 +393,14 @@ public class MainActivity extends AppCompatActivity {
                 md5 = list.get(list.size()-1).getMd5();
                 storagemem =  list.get(list.size()-1).getStoragemem();*/
 
-                updateUrl = "http://149.129.93.140:8080/otaupdate/xml/download/"
+                /*updateUrl = "http://149.129.93.140:8080/otaupdate/xml/download/zip/"
+                        + mode + "_" + productModel + "_" + logo + "/"
+                        + newVersion + "/" + version + "/update.zip";*/
+
+                updateUrl = BASE_URL_UPDATE + "download/zip/"
                         + mode + "_" + productModel + "_" + logo + "/"
                         + newVersion + "/" + version + "/update.zip";
+
             } else if (version >= max) {
                 newVersion = Integer.parseInt(list.get(list.size() - 1).getDate());
             }
@@ -383,13 +429,14 @@ public class MainActivity extends AppCompatActivity {
         public void onCreate() {
             super.onCreate();
             Log.e(TAG, "onCreate: -----------DownloadService");
-            new DownloadAsyncTask().execute();
+            //new DownloadAsyncTask().execute();
+            download();
         }
 
         /**
          * 下载新版本应用
          */
-        class DownloadAsyncTask extends AsyncTask<Void, Integer, Integer> {
+       /* class DownloadAsyncTask extends AsyncTask<Void, Integer, Integer> {
 
             @Override
             protected void onPreExecute() {
@@ -448,6 +495,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                     Log.e(TAG, "doInBackground: ---e--------" + e.toString());
 
+                    stopService(new Intent(MyApplication.getContext(), DownloadService.class));
                     handler.sendEmptyMessage(DOWNLOAD_FIALED);
 
                 } finally {
@@ -476,24 +524,30 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             protected void onProgressUpdate(Integer... values) {
-                Log.d(TAG, "onProgressUpdate: -----下载进度:" + values[0]);
+                if (values[0] == 10 || values[0] == 30 || values[0] == 60 || values[0] == 90) {
+                    Log.e(TAG, "onProgressUpdate: -----下载进度:" + values[0]);
+                }
                 tvProgesss.setText(getResources().getString(R.string.downloading) + values[0] + "%");
                 progressBar.setProgress(values[0]);
                 if (values[0] == 100) {
                     powerOffDialog();
                     countDown();
                 }
+
+                progess = values[0];
+
+                handler.sendEmptyMessage(UI_UPDATE);
+
             }
 
             @Override
             protected void onPostExecute(Integer integer) {
                 Log.d(TAG, "onPostExecute: --------下载完成--------");
                 //update();
-               /* powerOffDialog();
-                countDown();*/
+               *//* powerOffDialog();
+                countDown();*//*
             }
-        }
-
+        }*/
         public void update() {
             try {
                 //签名验证
@@ -503,11 +557,54 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "progress --------签名: " + progress);
                     }
                 }, null);
-                RecoverySystem.installPackage(com.luxcine.luxcine_ota_customized.MyApplication.getContext(), new File(FILE_NAME));
+                RecoverySystem.installPackage(com.luxcine.luxcine_ota.MyApplication.getContext(), new File(FILE_NAME));
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.e(TAG, "onPostExecute: ----" + e.toString());
             }
+        }
+
+        public void download() {
+            //updateUrl = "http://gdown.baidu.com/data/wisegame/df65a597122796a4/weixin_821.apk";
+            Log.e(TAG, "download: --------------------" + updateUrl);
+            DownloadManager.getInstance().download(updateUrl, new DownLoadObserver() {
+                @Override
+                public void onNext(DownloadInfo value) {
+                    super.onNext(value);
+                    // progress1.setMax((int) value.getTotal());
+                    // progress1.setProgress((int) value.getProgress());
+
+                    long p1 = value.getProgress();
+                    long t1 = value.getTotal();
+
+                    int p = (int) Math.floor(p1 * 1.0 / t1 * 100);
+
+                    progess = p;
+                    handler.sendEmptyMessage(UI_UPDATE);
+
+                    if (p == 10 || p == 30 || p == 60 || p == 90) {
+                        Log.e(TAG, "onNext: ----111--" + value.getProgress() + "," + value.getTotal() + "," + p + "%");
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    super.onError(e);
+                    Log.e(TAG, "onError: -------" + e.toString());
+                    DownloadManager.getInstance().cancel(updateUrl);
+                    stopService(new Intent(MyApplication.getContext(), DownloadService.class));
+                    handler.sendEmptyMessage(DOWNLOAD_FIALED);
+
+                }
+
+                @Override
+                public void onComplete() {
+                    if (downloadInfo != null) {
+                        Log.e(TAG, "onComplete: -----下载完成:" + downloadInfo.getFileName() + "-DownloadComplete");
+                        update();
+                    }
+                }
+            });
         }
 
     }
@@ -522,7 +619,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "progress --------签名: " + progress);
                 }
             }, null);
-            RecoverySystem.installPackage(com.luxcine.luxcine_ota_customized.MyApplication.getContext(), new File(FILE_NAME));
+            RecoverySystem.installPackage(com.luxcine.luxcine_ota.MyApplication.getContext(), new File(FILE_NAME));
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "onPostExecute: ----" + e.toString());
@@ -534,8 +631,8 @@ public class MainActivity extends AppCompatActivity {
         String versionCode = null;
         try {
             // 获取软件版本号，对应build.gradle下android:versionName
-            versionCode = com.luxcine.luxcine_ota_customized.MyApplication.getContext().getPackageManager()
-                    .getPackageInfo(com.luxcine.luxcine_ota_customized.MyApplication.getContext().getPackageName(), 0).versionName;
+            versionCode = com.luxcine.luxcine_ota.MyApplication.getContext().getPackageManager()
+                    .getPackageInfo(com.luxcine.luxcine_ota.MyApplication.getContext().getPackageName(), 0).versionName;
 
             tvVersion.setText("version:" + versionCode);
         } catch (PackageManager.NameNotFoundException e) {
@@ -546,8 +643,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static void powerOffDialog() {
-        View view = View.inflate(com.luxcine.luxcine_ota_customized.MyApplication.getContext(), R.layout.dialog_power_off, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(com.luxcine.luxcine_ota_customized.MyApplication.getContext());
+        View view = View.inflate(com.luxcine.luxcine_ota.MyApplication.getContext(), R.layout.dialog_power_off, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(com.luxcine.luxcine_ota.MyApplication.getContext());
         tvSecond = view.findViewById(R.id.tv_second);
 
         builder.setView(view);
@@ -580,6 +677,20 @@ public class MainActivity extends AppCompatActivity {
         mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
 
         mDialog.show();
+
+        mDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_HOME
+                        || keyCode == KeyEvent.KEYCODE_BACK
+                        || keyCode == KeyEvent.KEYCODE_MENU
+                        || keyCode == KeyEvent.KEYCODE_F2
+                        || keyCode == KeyEvent.KEYCODE_F5) {
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     private static void countDown() {
@@ -607,4 +718,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    public String initLauncher() {
+        PackageManager packageManager = MyApplication.getContext().getPackageManager();
+        // 创建一个主界面的intent
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        // 得到包含应用信息的列表
+        List<ResolveInfo> ResolveInfos = packageManager.queryIntentActivities(
+                intent, 0);
+        // 遍历
+        for (ResolveInfo ri : ResolveInfos) {
+            // 得到包名
+            String packageName = ri.activityInfo.packageName;
+            if (packageName.equals("com.google.android.youtube.tv")) {
+                launcher = "atv";
+            } else if (packageName.equals("com.dangbei.leard.leradlauncher.common")
+                    || packageName.equals("com.dangbei.mimir.lightos.home")) {
+                launcher = "dbos";
+            }
+        }
+        return launcher;
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (mDialog == null) {
+            btnUpdate.requestFocus();
+        }
+        return super.dispatchKeyEvent(event);
+    }
 }

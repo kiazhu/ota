@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota_customized;
+package com.luxcine.luxcine_ota;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;

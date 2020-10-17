@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota_customized.version;
+package com.luxcine.luxcine_ota.version;
 
 import android.app.ActivityManager;
 import android.app.Service;
@@ -14,7 +14,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.luxcine.luxcine_ota_customized.MyApplication;
+import com.luxcine.luxcine_ota.MyApplication;
 
 import java.util.List;
 

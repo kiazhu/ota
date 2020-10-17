@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota_customized.version;
+package com.luxcine.luxcine_ota.version;
 
 public class ApkData {
     private String date;

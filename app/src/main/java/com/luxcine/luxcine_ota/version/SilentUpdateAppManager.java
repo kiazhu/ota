@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota_customized.version;
+package com.luxcine.luxcine_ota.version;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -8,8 +8,8 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
-import com.luxcine.luxcine_ota_customized.MainActivity;
-import com.luxcine.luxcine_ota_customized.MyApplication;
+import com.luxcine.luxcine_ota.MainActivity;
+import com.luxcine.luxcine_ota.MyApplication;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,9 +25,9 @@ public class SilentUpdateAppManager {
     private Context context;
     // 外存sdcard存放路径
     //private static final String FILE_PATH = Environment.getExternalStorageDirectory() + "/";
-    private static final String FILE_PATH = "/data/data/com.luxcine.luxcine_ota_customized/";
+    private static final String FILE_PATH = "/data/data/com.luxcine.luxcine_ota/";
     // 下载应用存放全路径
-    private static final String FILE_NAME = FILE_PATH + "luxcine_ota_customized.apk";
+    private static final String FILE_NAME = FILE_PATH + "luxcine_ota.apk";
 
     // 准备安装新版本应用标记
     private static final int INSTALL_TOKEN = 1;
@@ -41,7 +41,7 @@ public class SilentUpdateAppManager {
     private String update_describe, urlStr;
     private int version;
 
-    private VersionModel mVersionBean;
+    private com.luxcine.luxcine_ota.version.VersionModel mVersionBean;
 
 
     public SilentUpdateAppManager(Context context, int version, String url) {
@@ -172,8 +172,8 @@ public class SilentUpdateAppManager {
             FileOutputStream out = null;
             try {
                 // url = new URL(Url.APK_PATH);
-                //Log.e(TAG, "doInBackground: -------" + urlStr);
                 url = new URL(urlStr);
+                //Log.e(TAG, "doInBackground: -------" + urlStr);
                 connection = (HttpURLConnection) url.openConnection();
 
                 in = connection.getInputStream();
@@ -198,7 +198,7 @@ public class SilentUpdateAppManager {
 
                     int curProgress = (int) (((float) readLength / fileLength) * 100);
 
-                    if (curProgress == 10 || curProgress == 30|| curProgress == 60 || curProgress == 90) {
+                    if (curProgress == 10 || curProgress == 30 || curProgress == 60 || curProgress == 90) {
                         Log.e(TAG, "--------APK下载进度:" + curProgress);
                     }
 

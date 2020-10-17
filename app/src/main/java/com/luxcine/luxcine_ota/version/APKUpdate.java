@@ -1,11 +1,15 @@
-package com.luxcine.luxcine_ota_customized.version;
+package com.luxcine.luxcine_ota.version;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.os.SystemProperties;
 import android.util.Log;
 import android.util.Xml;
 
 import com.google.gson.Gson;
-import com.luxcine.luxcine_ota_customized.MyApplication;
+import com.luxcine.luxcine_ota.MyApplication;
+import com.luxcine.luxcine_ota.R;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -21,14 +25,23 @@ public class APKUpdate {
     private static final String TAG = "APKUpdate";
 
     private String oldVersion, newVersion, url;
-    private VersionModel versionModel;
+    private com.luxcine.luxcine_ota.version.VersionModel versionModel;
 
     public static final String api_token = "02adf1aa8df8c3aa9f2fb0026551e709";
     public static final String id = "5f617b7db2eb467dd1a6abed";
     public static final String BASE_URL_FIR = "http://api.bq04.com/apps/latest/"
             + id + "?api_token=" + api_token;
 
-    public static final String BASE_URL_HK = "http://149.129.93.140:8080/otaupdate/xml/update/luxcine_ota_customized.xml";
+    //香港服务器
+    // public static final String BASE_URL_APK_HK = "http://149.129.93.140:8080/otaupdate/xml/update/luxcine_ota.xml";
+    //国内服务器
+    // public static final String BASE_URL_APK_CN = "http://120.24.53.73:80/otaupdate/xml/update/luxcine_ota.xml";
+
+    private static final String BASE_URL_APK_HK = "http://149.129.93.140:8080/otaupdate/xml/";
+    private static final String BASE_URL_APK_CN = "http://120.24.53.73:80/otaupdate/xml/";
+
+    private String BASE_URL_APK;
+    private String launcher;
 
     private String updateUrl;
     private String md5;
@@ -36,15 +49,26 @@ public class APKUpdate {
     private int date;
     private String describe;
 
-
     private List<ApkData> list;
 
     public void update() {
+        launcher = initLauncher();
+
+        if (launcher.equals("dbos")) {
+            BASE_URL_APK = BASE_URL_APK_CN;
+        } else if (launcher.equals("atv")) {
+            BASE_URL_APK = BASE_URL_APK_HK;
+        }
+
+       // BASE_URL_APK = BASE_URL_APK_CN;
+
+        //Log.e(TAG, "update: ------------apk:"+BASE_URL_APK );
+
         //从本地获取版本号
         getVersionCode();
         //fir.im从网络获取版本号
         //initVersion();
-        //香港服务器从网络获取版本号
+        //服务器从网络获取版本号
         getVersionHK();
     }
 
@@ -64,7 +88,7 @@ public class APKUpdate {
 
 
     public void initVersion() {
-        new OkHttpUtil().getAsynHttp(BASE_URL_FIR, new OkHttpUtil.OnOkHttpListener() {
+        new com.luxcine.luxcine_ota.version.OkHttpUtil().getAsynHttp(BASE_URL_FIR, new OkHttpUtil.OnOkHttpListener() {
             @Override
             public void onSuccess(String response) {
                 Log.e(TAG, "onSuccess: ---------" + response);
@@ -110,7 +134,9 @@ public class APKUpdate {
         Thread thread = new Thread() {
             @Override
             public void run() {
-                String path = BASE_URL_HK;
+                //String path = BASE_URL_HK;
+                String path = BASE_URL_APK + "update/luxcine_ota.xml";
+                Log.e(TAG, "run: --------------apk:" + path);
                 try {
                     URL url = new URL(path);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -138,7 +164,7 @@ public class APKUpdate {
             xParser.setInput(is, "utf-8");
             //获取事件的类型
             int eventType = xParser.getEventType();
-            ApkData apkData = null;
+            com.luxcine.luxcine_ota.version.ApkData apkData = null;
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 switch (eventType) {
                     case XmlPullParser.START_TAG:
@@ -146,7 +172,7 @@ public class APKUpdate {
                         if ("update".equals(xParser.getName())) {
                             list = new ArrayList<ApkData>();
                         } else if ("version".equals(xParser.getName())) {
-                            apkData = new ApkData();
+                            apkData = new com.luxcine.luxcine_ota.version.ApkData();
                         } else if ("date".equals(xParser.getName())) {
                             String date = xParser.nextText();
                             apkData.setDate(date);
@@ -216,17 +242,18 @@ public class APKUpdate {
                     strMax = list.get(i).getVersion_code().trim();
                 }
             }
-
             int loaclVersionCode = Integer.parseInt(getVersionCode().replace(".", ""));
 
             Log.e(TAG, "parseXmlInfo: -----:" + loaclVersionCode + "," + max);
 
             if (max > loaclVersionCode) {
-                url = "http://149.129.93.140:8080/otaupdate/xml/download/zip/luxcine_ota_customized/" + strMax + "/luxcine_ota_customized.apk";
+                // url = "http://149.129.93.140:8080/otaupdate/xml/download/zip/luxcine_ota/" + strMax + "/luxcine_ota.apk";
+                url = BASE_URL_APK + "download/zip/luxcine_ota/" + strMax + "/luxcine_ota.apk";
 
                 SilentUpdateAppManager updateAppManager = new SilentUpdateAppManager(MyApplication.getContext(), max, url);
                 updateAppManager.getUpdateMsg();//检查更新
             }
+
             Log.e(TAG, "parseXmlInfo: --------apk链接：" + url);
 
 
@@ -234,5 +261,29 @@ public class APKUpdate {
             e.printStackTrace();
         }
 
+    }
+
+
+    public String initLauncher() {
+        PackageManager packageManager = MyApplication.getContext().getPackageManager();
+        // 创建一个主界面的intent
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        // 得到包含应用信息的列表
+        List<ResolveInfo> ResolveInfos = packageManager.queryIntentActivities(
+                intent, 0);
+        // 遍历
+        for (ResolveInfo ri : ResolveInfos) {
+            // 得到包名
+            String packageName = ri.activityInfo.packageName;
+            if (packageName.equals("com.google.android.youtube.tv")) {
+                launcher = "atv";
+            } else if (packageName.equals("com.dangbei.leard.leradlauncher.common")
+                    || packageName.equals("com.dangbei.mimir.lightos.home")) {
+                launcher = "dbos";
+            }
+        }
+        return launcher;
     }
 }

@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota_customized.version;
+package com.luxcine.luxcine_ota.version;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
-import com.luxcine.luxcine_ota_customized.MyApplication;
+import com.luxcine.luxcine_ota.MyApplication;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

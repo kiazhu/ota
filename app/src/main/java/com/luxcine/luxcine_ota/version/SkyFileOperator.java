@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota.utils;
+package com.luxcine.luxcine_ota.version;
 
 import android.os.SystemProperties;
 import android.util.Log;

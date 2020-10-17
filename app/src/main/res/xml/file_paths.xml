@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?><!--<paths>
-    <external-path path="com.luxcine.luxcine_ota_customized"        name="files_root" />
+    <external-path path="com.luxcine.luxcine_ota"        name="files_root" />
     <external-path path="." name="external_storage_root" />
 </paths>-->
 <paths>
     <eroot-path
         name="files_root"
-        path="com.luxcine.luxcine_ota_customized" />
+        path="com.luxcine.luxcine_ota" />
     <root-path
         name="external_storage_root"
         path="." />

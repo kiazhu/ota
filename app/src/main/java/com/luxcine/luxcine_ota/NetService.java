@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota_customized;
+package com.luxcine.luxcine_ota;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -12,7 +12,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.luxcine.luxcine_ota_customized.version.APKUpdate;
+import com.luxcine.luxcine_ota.version.APKUpdate;
 
 
 public class NetService extends Service {

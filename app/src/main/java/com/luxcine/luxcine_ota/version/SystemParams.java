@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota_customized.version;
+package com.luxcine.luxcine_ota.version;
 
 import android.content.Context;
 import android.content.SharedPreferences;

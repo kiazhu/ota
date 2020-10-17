@@ -1,4 +1,4 @@
-package com.luxcine.luxcine_ota_customized.utils;
+package com.luxcine.luxcine_ota.utils;
 
 public class Data {
     private String date;

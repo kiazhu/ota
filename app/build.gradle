@@ -3,20 +3,18 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         t972 {
-            storeFile file('./aml-t972-platform.jks')
+            storeFile file('D:\\android_studio\\android_studio_space\\luxcine_ota\\app\\aml-t972-platform.jks')
             storePassword 'pl01191217'
             keyAlias = 't972'
             keyPassword 'pl01191217'
         }
     }
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 28
     defaultConfig {
-        applicationId "com.luxcine.luxcine_ota_customized"
-        minSdkVersion 26
-        targetSdkVersion 29
+        minSdkVersion 22
+        targetSdkVersion 28
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.t972
     }
@@ -46,7 +44,7 @@ android {
     }
     //以上是为了找到android.os.SystemProperties这个隐藏的类
 
-    compileOptions{
+    compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -54,7 +52,7 @@ android {
     //更改apk名字
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "luxcine_ota_customized.apk"
+            outputFileName = "luxcine_ota.apk"
         }
     }
 }
@@ -72,4 +70,11 @@ dependencies {
 
     //加载gif图片框架
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.7'
+
+
+    //OKHttp
+    implementation 'com.squareup.okhttp3:okhttp:3.6.0'
+    //RxJava和RxAndroid 用来做线程切换的
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.0.1'
 }
