@@ -3,7 +3,7 @@
 
     <string name="current_version">Current Version:</string>
     <string name="already_new">Latest Version Already</string>
-    <string name="new_version">Latest Version:</string>
+    <string name="new_version">Latest &#160; Version:</string>
     <string name="download_failed">Download Failed</string>
     <string name="update">Upgrade</string>
     <string name="downloading">Downloads Checking:</string>

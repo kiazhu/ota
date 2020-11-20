@@ -1,6 +1,10 @@
 package com.luxcine.luxcine_ota.download;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
+
+import com.luxcine.luxcine_ota.MyApplication;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,6 +32,9 @@ public class DownloadManager {
 
     private static final String FILE_PATH = "/data/data/com.luxcine.luxcine_ota/";
 
+    private SharedPreferences sp;
+    private SharedPreferences.Editor editor;
+
     //获得一个单例类
     public static DownloadManager getInstance() {
         for (; ; ) {
@@ -45,6 +52,8 @@ public class DownloadManager {
     private DownloadManager() {
         downCalls = new HashMap<>();
         mClient = new OkHttpClient.Builder().build();
+
+
     }
 
     /**

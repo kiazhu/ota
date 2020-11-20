@@ -38,6 +38,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Editor;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -81,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
     private String md5, minMd5, maxMd5;
     private String storagemem, minStoragemem, maxStoragemem;
 
-    private String usid, productModel, logo, mode;
+    private String usid="";
+    private String  productModel, logo, mode;
     private int version;
 
     private static Button btnUpdate;
@@ -93,11 +95,12 @@ public class MainActivity extends AppCompatActivity {
     private static AlertDialog mDialog;
     private static CountDownTimer countDownTimer;
 
-    private static final String BASE_URL_UPDATE_HK = "http://149.129.93.140:8080/otaupdate/xml/";
+    //private static final String BASE_URL_UPDATE_HK = "http://149.129.93.140:8080/otaupdate/xml/";
+    private static final String BASE_URL_UPDATE_HK = "http://www.chasecolor.com:8080/otaupdate/xml/";
     private static final String BASE_URL_UPDATE_CN = "http://120.24.53.73:80/otaupdate/xml/";
     private String BASE_URL_UPDATE;
 
-    private String launcher;
+    private String launcher ="";
 
     // 外存sdcard存放路径
     //private static final String FILE_PATH = Environment.getExternalStorageDirectory() + "/";
@@ -108,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int INSTALL_TOKEN = 1;
 
     private NetReciver netReceiver;
+
+    private static SharedPreferences sp;
+    private static SharedPreferences.Editor editor;
 
     @SuppressLint("HandlerLeak")
     private static Handler handler = new Handler() {
@@ -145,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+    private int startDownload = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,12 +202,13 @@ public class MainActivity extends AppCompatActivity {
             logo = "rombica";
         }
 
-       /* version = Integer.parseInt(SystemProperties.get("ro.build.version.incremental", ""));
+        //rk_rk3328_box_normal
+        /*version = Integer.parseInt(SystemProperties.get("ro.build.version.incremental", ""));
         BASE_URL_UPDATE = BASE_URL_UPDATE_CN;
         mode = "rk";
         productModel = "rk3328";
         logo = "box_normal";*/
-        //strUrl = BASE_URL_UPDATE + "update/" + "rk_rk3328_box_normal" + ".xml";
+
         strUrl = BASE_URL_UPDATE + "update/" + mode + "_" + productModel + "_" + logo + ".xml";
         Log.e(TAG, "onCreate: ------读取文件:" + strUrl);
 
@@ -210,6 +218,23 @@ public class MainActivity extends AppCompatActivity {
         netReceiver = new NetReciver();
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(netReceiver, intentFilter);
+
+
+        /*判断update.zip文件是否存在
+          判断是否为断点续传
+          若文件存在，不为断点续传，则删除原文件*/
+
+        //1下载开始，2下载完成
+        sp = getSharedPreferences("luxicne_ota", Context.MODE_PRIVATE);
+        editor = sp.edit();
+        startDownload = sp.getInt("startDownload", 0);
+
+        boolean isFileExists = fileIsExists("/data/data/com.luxcine.luxcine_ota/update.zip");
+        Log.e(TAG, "onCreate: -------文件存在:" + isFileExists + ",startDownload:" + startDownload);
+
+        if (startDownload == 2 && isFileExists) {
+            deleteLocal("/data/data/com.luxcine.luxcine_ota/update.zip");//删除文件
+        }
     }
 
     @Override
@@ -375,13 +400,6 @@ public class MainActivity extends AppCompatActivity {
 
             if (version < min) {
                 newVersion = Integer.parseInt(list.get(0).getDate());
-                /*updateUrl = list.get(0).getUrl();
-                md5 = list.get(0).getMd5();
-                storagemem = list.get(0).getStoragemem();*/
-
-                /*updateUrl = "http://149.129.93.140:8080/otaupdate/xml/download/zip/"
-                        + mode + "_" + productModel + "_" + logo + "/"
-                        + newVersion + "/" + version + "/update.zip";*/
 
                 updateUrl = BASE_URL_UPDATE + "download/zip/"
                         + mode + "_" + productModel + "_" + logo + "/"
@@ -389,13 +407,6 @@ public class MainActivity extends AppCompatActivity {
 
             } else if (version < max) {
                 newVersion = Integer.parseInt(list.get(list.size() - 1).getDate());
-                /*updateUrl = list.get(list.size()-1).getUrl();
-                md5 = list.get(list.size()-1).getMd5();
-                storagemem =  list.get(list.size()-1).getStoragemem();*/
-
-                /*updateUrl = "http://149.129.93.140:8080/otaupdate/xml/download/zip/"
-                        + mode + "_" + productModel + "_" + logo + "/"
-                        + newVersion + "/" + version + "/update.zip";*/
 
                 updateUrl = BASE_URL_UPDATE + "download/zip/"
                         + mode + "_" + productModel + "_" + logo + "/"
@@ -548,7 +559,7 @@ public class MainActivity extends AppCompatActivity {
                 countDown();*//*
             }
         }*/
-        public void update() {
+        /*public void update() {
             try {
                 //签名验证
                 RecoverySystem.verifyPackage(new File(FILE_NAME), new RecoverySystem.ProgressListener() {
@@ -562,8 +573,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
                 Log.e(TAG, "onPostExecute: ----" + e.toString());
             }
-        }
-
+        }*/
         public void download() {
             //updateUrl = "http://gdown.baidu.com/data/wisegame/df65a597122796a4/weixin_821.apk";
             Log.e(TAG, "download: --------------------" + updateUrl);
@@ -585,6 +595,12 @@ public class MainActivity extends AppCompatActivity {
                     if (p == 10 || p == 30 || p == 60 || p == 90) {
                         Log.e(TAG, "onNext: ----111--" + value.getProgress() + "," + value.getTotal() + "," + p + "%");
                     }
+
+                    //if (p > 0 && p < 1) {
+                    editor.putInt("startDownload", 1);
+                    editor.commit();
+                    //}
+
                 }
 
                 @Override
@@ -594,21 +610,22 @@ public class MainActivity extends AppCompatActivity {
                     DownloadManager.getInstance().cancel(updateUrl);
                     stopService(new Intent(MyApplication.getContext(), DownloadService.class));
                     handler.sendEmptyMessage(DOWNLOAD_FIALED);
-
                 }
 
                 @Override
                 public void onComplete() {
                     if (downloadInfo != null) {
                         Log.e(TAG, "onComplete: -----下载完成:" + downloadInfo.getFileName() + "-DownloadComplete");
+
+                        editor.putInt("startDownload", 2);
+                        editor.commit();
+
                         update();
                     }
                 }
             });
         }
-
     }
-
 
     public static void update() {
         try {
@@ -616,10 +633,10 @@ public class MainActivity extends AppCompatActivity {
             RecoverySystem.verifyPackage(new File(FILE_NAME), new RecoverySystem.ProgressListener() {
                 @Override
                 public void onProgress(int progress) {
-                    Log.d(TAG, "progress --------签名: " + progress);
+                    Log.e(TAG, "progress --------签名: " + progress);
                 }
             }, null);
-            RecoverySystem.installPackage(com.luxcine.luxcine_ota.MyApplication.getContext(), new File(FILE_NAME));
+            RecoverySystem.installPackage(MyApplication.getContext(), new File(FILE_NAME));
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "onPostExecute: ----" + e.toString());
@@ -704,7 +721,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFinish() {
                     //Log.e(TAG, "onTick: -----onFinish--------");
-                    update();
+                    //update();
                     if (countDownTimer != null) {
                         countDownTimer.cancel();
                         countDownTimer = null;
@@ -748,5 +765,35 @@ public class MainActivity extends AppCompatActivity {
             btnUpdate.requestFocus();
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    //判断文件是否存在
+    private static boolean fileIsExists(String filePath) {
+        try {
+            File f = new File(filePath);
+            if (!f.exists()) {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean deleteLocal(String path) {
+        if (path != null) {
+            File file = new File(path);
+            if (file.exists()) {
+                if (file.delete()) {
+                    Log.e(TAG, "deleteLocal: ------delete  success---------");
+                    return true;
+                } else {
+                    Log.e(TAG, "deleteLocal: ------delete  failed---------");
+                    deleteLocal(path);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

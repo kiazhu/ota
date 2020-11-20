@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">эскалация</string>
 
-    <string name="current_version"> текущая версия:</string>
+    <string name="current_version">текущая  &#160;  &#160;  версия:</string>
     <string name="already_new">это последняя версия</string>
     <string name="new_version">последняя версия:</string>
     <string name="download_failed">Ошибка загрузки</string>

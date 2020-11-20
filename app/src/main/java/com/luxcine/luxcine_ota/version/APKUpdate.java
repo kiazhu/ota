@@ -37,7 +37,8 @@ public class APKUpdate {
     //国内服务器
     // public static final String BASE_URL_APK_CN = "http://120.24.53.73:80/otaupdate/xml/update/luxcine_ota.xml";
 
-    private static final String BASE_URL_APK_HK = "http://149.129.93.140:8080/otaupdate/xml/";
+    //private static final String BASE_URL_APK_HK = "http://149.129.93.140:8080/otaupdate/xml/";
+    private static final String BASE_URL_APK_HK = "http://www.chasecolor.com:8080/otaupdate/xml/";
     private static final String BASE_URL_APK_CN = "http://120.24.53.73:80/otaupdate/xml/";
 
     private String BASE_URL_APK;
@@ -60,7 +61,7 @@ public class APKUpdate {
             BASE_URL_APK = BASE_URL_APK_HK;
         }
 
-       // BASE_URL_APK = BASE_URL_APK_CN;
+        // BASE_URL_APK = BASE_URL_APK_CN;
 
         //Log.e(TAG, "update: ------------apk:"+BASE_URL_APK );
 
